@@ -1,9 +1,13 @@
 const mongoose = require('mongoose')
-const accidentLocation = new mongoose.Schema({
+const accidentLocationSchema = new mongoose.Schema({
     lat: String,
     long: String,
-    userId: String,
-    time: Date,
+    time: String,
+    date: String,
+    customerId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'customer'
+    }
 })
 
-module.exports = mongoose.model('accidentLocation',accidentLocation);
+module.exports = mongoose.model('accidentLocation',accidentLocationSchema);
