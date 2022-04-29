@@ -66,7 +66,7 @@ const checkRealTimeData = async(req,res,next)=>{
                 })
             }
         }
-        res.status(200).json({message:"Triggered successfully"});
+        // res.status(200).json({message:"Triggered successfully"});
         console.timeEnd();
     }catch(err){
         console.log("<><><><><>Error occured in checking Realtime Data<><><><><>");
@@ -94,6 +94,7 @@ const afterAccident = async(acci)=>{
             let dis = Math.sqrt(Math.pow(h.lat-lat,2)+Math.pow(h.long-long,2));
             console.log(`distance for hospital ${h.name} = ${dis}`);
             if(dis<mind){
+              mind = dis;  
               c_hos = h;  
             }
         })
@@ -112,6 +113,8 @@ const afterAccident = async(acci)=>{
         console.log(err);
     }
 }
+
+setInterval(checkRealTimeData,1000*3)
 
 module.exports = {
     checkRealTimeData
