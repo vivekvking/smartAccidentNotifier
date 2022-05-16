@@ -12,6 +12,12 @@ router.post('/customer',indexControllers.addCustomer);
 //add new driver
 router.post('/driver',indexControllers.addDriver);
 
+//login customer
+router.post('/login/customer',indexControllers.customerLogin);
+
+//login driver
+router.post('/login/driver',indexControllers.driverLogin);
+
 //add new hospital
 router.post('/hospital',indexControllers.addHospital);
 

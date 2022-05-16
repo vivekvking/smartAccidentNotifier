@@ -157,11 +157,87 @@ const addHospital = async(req,res,next)=>{
     }
 }
 
+const customerLogin = async(req,res,next)=>{
+    const {
+        password, phone
+    } = req.body;
+    try{
+        if(!phone || !password){
+            const error = new Error("Username or Password missing");
+            error.statusCode = 422;
+            throw error;
+        }
+        const user = await Customer.find({ phoneNo : phone }).lean().exec()
+        let login = await Login.findOne({ phoneNo : phone }).lean()
+        let hashedPassword = login.password;
+        let r =await bcrypt.compare(password, hashedPassword)
+        if(r==true){
+            console.log("Password check successfull")
+            let accessToken = jwt.sign({userId:user._id,role:"customer"},"supersecretkeyforsupersecret",{expiresIn:'30d'});
+            let refreshToken = jwt.sign({userId:user._id,role:"customer"},"supersecretkeyforsupersecret",{expiresIn:'90d'});
+            Login.findOne({phoneNo: phone},function(err,luser){
+                luser.accessToken = accessToken
+                luser.refreshToken = refreshToken
+
+                luser.save(function(err){
+                    if(err)
+                        console.log("error", err)
+                })
+            })
+            res.status(200).json({message: "Logged in Successfully",role: "customer", userId: user._id,accessToken, refreshToken});
+        }      
+    }
+    catch(err){
+        if(!err.statusCode)
+            err.statusCode = 500;
+        next(err);    
+    }
+}
+
+
+const driverLogin = async(req,res,next)=>{
+    const {
+        password, phone
+    } = req.body;
+    try{
+        if(!phone || !password){
+            const error = new Error("Username or Password missing");
+            error.statusCode = 422;
+            throw error;
+        }
+        const user = await Driver.find({ phoneNo : phone }).lean().exec()
+        let login = await Login.findOne({ phoneNo : phone }).lean()
+        let hashedPassword = login.password;
+        let r =await bcrypt.compare(password, hashedPassword)
+        if(r==true){
+            console.log("Password check successfull")
+            let accessToken = jwt.sign({userId:user._id,role:"driver"},"supersecretkeyforsupersecret",{expiresIn:'30d'});
+            let refreshToken = jwt.sign({userId:user._id,role:"driver"},"supersecretkeyforsupersecret",{expiresIn:'90d'});
+            Login.findOne({phoneNo: phone},function(err,luser){
+                luser.accessToken = accessToken
+                luser.refreshToken = refreshToken
+
+                luser.save(function(err){
+                    if(err)
+                        console.log("error", err)
+                })
+            })
+            res.status(200).json({message: "Logged in Successfully",role: "driver", userId: user._id,accessToken, refreshToken});
+        }      
+    }
+    catch(err){
+        if(!err.statusCode)
+            err.statusCode = 500;
+        next(err);    
+    }
+}
 
 
 module.exports = {
     addAccidentLocation,
     addCustomer,
     addDriver,
-    addHospital
+    addHospital,
+    customerLogin,
+    driverLogin
 }

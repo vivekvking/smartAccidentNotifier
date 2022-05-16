@@ -9,30 +9,30 @@ const checkRealTimeData = async(req,res,next)=>{
         console.time();
         console.log("Request for triggering accident processor received")
         // getting data from firebase
-        const url = 'https://smart-accident-notifier-default-rtdb.firebaseio.com/.json'
+        const url = process.env.fbUrl;
         const response = await axios.get(url);
         if(response.status != 200){
             const error = new Error("Some error occured in response to get real time data");
             throw error;
         }
         if(response.data){
-            console.log(response.data);
+            // console.log(response.data);
             for(let customerId in response.data.location){ 
-                console.log("PROCESSING CUSTOMER = ", customerId);
+                // console.log("PROCESSING CUSTOMER = ", customerId);
                 const { date, lat, long, time} = response.data.location[customerId];
                 if(!date || !lat || !long || !time || date =='' || lat == '' || long =='' || time==''){
-                    console.log("Skipping Customer");
+                    // console.log("Skipping Customer");
                     continue;
                 }
-                console.log("Finding entry for the user in accidentlocations table");
+                // console.log("Finding entry for the user in accidentlocations table");
                 let same_accident_flag = false;
                 await AccidentLocation.findOne({"customerId" : ObjectId(customerId)}).exec()
                 .then(acci=>{
                     if(acci){
-                        console.log("Data from DB= ", acci);
+                        // console.log("Data from DB= ", acci);
                         //entry found but same accident
                         if(acci.date == date && acci.time == time && acci.lat == lat && acci.long == long){
-                            console.log("Older accident")
+                            // console.log("Older accident")
                             same_accident_flag = true;
                             return;
                         }
