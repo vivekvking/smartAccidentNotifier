@@ -24,6 +24,9 @@ router.post('/hospital',indexControllers.addHospital);
 //accident Processor trigger
 router.get('/trigger',accidentProcessor.checkRealTimeData);
 
+//driver pop up manager
+router.get('/popups',indexControllers.driverNotification);
+
 
 //default handling
 router.get('*',(req,res,next)=>{
