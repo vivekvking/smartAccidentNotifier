@@ -27,6 +27,9 @@ router.get('/trigger',accidentProcessor.checkRealTimeData);
 //driver pop up manager
 router.get('/popups',indexControllers.driverNotification);
 
+//driver accepting the accident
+router.post('/accept',indexControllers.driverAcceptAccident);
+
 
 //default handling
 router.get('*',(req,res,next)=>{

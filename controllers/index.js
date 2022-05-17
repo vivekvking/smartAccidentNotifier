@@ -279,6 +279,54 @@ const driverNotification = async(req,res,next)=>{
     }
 }
 
+const driverAcceptAccident = async(req,res,next)=>{
+    const token  = req.headers.authorization ? req.headers.authorization.split(' ')[1] : null
+    const {
+        accidentId 
+    } = req.body
+    try{
+        if(!token){
+            const error = new Error("Authorization failed");
+            error.statusCode = 401;
+            throw error;
+        }
+        if(!accidentId || !isValidObjectId(accidentId)){
+            const error = new Error("Unprocessable Entity")
+            error.statusCode = 422;
+            throw error;
+        }
+        let decoded = jwt.decode(token);
+        if(!decoded.userId && !decoded.role){
+            const error = new Error("Token incorrect")
+            error.statusCode = 422;
+            throw error;
+        } 
+        let driverId = decoded.userId;
+        // get the driver details
+        AccidentData.findOne({_id: ObjectId(accidentId)},(err,data)=>{
+            if(err){
+                const error = new Error("No accident Data found")
+                error.statusCode = 404;
+                throw error;
+            }
+            data['driverId']=ObjectId(driverId);
+            data.save((err)=>{
+                if(err){
+                    const error = new Error("Some error occured in accepting accident")
+                    error.statusCode = 500
+                    throw error
+                }
+            })
+        }) 
+        res.status(200).json({message: "Accident assigned to driver successfully"});
+
+    }catch(err){
+        if(!err.statusCode)
+            err.statusCode = 500;
+        next(err)
+    }
+}
+
 
 module.exports = {
     addAccidentLocation,
@@ -287,5 +335,6 @@ module.exports = {
     addHospital,
     customerLogin,
     driverLogin,
-    driverNotification
+    driverNotification,
+    driverAcceptAccident
 }
