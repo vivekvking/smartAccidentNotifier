@@ -6,8 +6,8 @@ const ObjectId = require('mongoose').Types.ObjectId;
 // async function checkNewAccidents(){
 const checkRealTimeData = async(req,res,next)=>{
     try{
-        console.time();
-        console.log("Request for triggering accident processor received")
+        // console.time();
+        // console.log("Request for triggering accident processor received")
         // getting data from firebase
         const url = process.env.fbUrl;
         const response = await axios.get(url);
@@ -17,10 +17,10 @@ const checkRealTimeData = async(req,res,next)=>{
         }
         if(response.data){
             // console.log(response.data);
-            for(let customerId in response.data.location){ 
+            for(let customerId in response.data){ 
                 // console.log("PROCESSING CUSTOMER = ", customerId);
-                const { date, lat, long, time} = response.data.location[customerId];
-                if(!date || !lat || !long || !time || date =='' || lat == '' || long =='' || time==''){
+                const { Date, Latitude, Longitude, Time} = response.data[customerId];
+                if(!Date || !Latitude || !Longitude || !Time || Date =='' || Latitude == '' || Longitude =='' || Time==''){
                     // console.log("Skipping Customer");
                     continue;
                 }
@@ -31,7 +31,7 @@ const checkRealTimeData = async(req,res,next)=>{
                     if(acci){
                         // console.log("Data from DB= ", acci);
                         //entry found but same accident
-                        if(acci.date == date && acci.time == time && acci.lat == lat && acci.long == long){
+                        if(acci.date == Date && acci.time == Time && acci.lat == Latitude && acci.long == Longitude){
                             // console.log("Older accident")
                             same_accident_flag = true;
                             return;
@@ -39,7 +39,7 @@ const checkRealTimeData = async(req,res,next)=>{
                         //entry found but another accident
                         else{
                             console.log("New Accident");
-                            acci.date = date;acci.lat = lat;acci.long = long;acci.time = time;
+                            acci.date = Date;acci.lat = Latitude;acci.long = Longitude;acci.time = Time;
                             acci.save((err,newacc)=>{
                                 if(err){
                                     console.log("error occured in updating accident data", err);
@@ -54,7 +54,7 @@ const checkRealTimeData = async(req,res,next)=>{
                     //entry not found means new accident
                     else{
                         AccidentLocation.create({
-                            lat,long,date,time,customerId
+                            lat: Latitude,long: Longitude,date: Date,time: Time,customerId
                         }).then(acc =>{
                             console.log("New Accident Noted", acc);
                             afterAccident(acc);
@@ -67,7 +67,7 @@ const checkRealTimeData = async(req,res,next)=>{
             }
         }
         // res.status(200).json({message:"Triggered successfully"});
-        console.timeEnd();
+        // console.timeEnd();
     }catch(err){
         console.log("<><><><><>Error occured in checking Realtime Data<><><><><>");
         console.log(err);
